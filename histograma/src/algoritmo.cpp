@@ -36,7 +36,7 @@ DatosHistograma Algoritmo::calcularFrecuencias(const cv::Mat& img, bool enGrises
     return datos;
 }
 
-// Interfaz y graficado puramente en OpenCV
+// Interfaz y graficado en OpenCV
 cv::Mat Algoritmo::dibujarLienzoHistograma(const DatosHistograma& datos, int width, int height) {
     int margin = 50;
     cv::Mat histImage(height, width, CV_8UC3, cv::Scalar(255,255,255)); //creamos donde dibujar
