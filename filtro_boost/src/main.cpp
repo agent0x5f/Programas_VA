@@ -69,10 +69,17 @@ int main(int argc, char** argv) {
         }
     }
 
-    std::cout << "Aplicando convolucion High-Boost..." << std::endl;
+    cv::Mat hsv;
+    cv::cvtColor(img, hsv, cv::COLOR_BGR2HSV);
+    std::vector<cv::Mat> canales;
+    cv::split(hsv, canales);
+    cv::Mat canalV_filtrado = Filtros::aplicarConvolucion(canales[2], kernel, false);
+    canalV_filtrado.copyTo(canales[2]);
+    cv::Mat hsv_resultado;
+    cv::merge(canales, hsv_resultado);
+    cv::Mat resultado;
 
-    cv::Mat resultado = Filtros::aplicarConvolucion(img, kernel, false);
-
+    cv::cvtColor(hsv_resultado, resultado, cv::COLOR_HSV2BGR);
     if (!resultado.empty()) {
         cv::imwrite(outputPath, resultado);
         std::cout << "Imagen filtrada guardada correctamente como '" << outputPath << "'." << std::endl;

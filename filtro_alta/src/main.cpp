@@ -72,10 +72,26 @@ int main(int argc, char** argv) {
     }
 
     std::cout << "Aplicando convolucion Pasa Alta..." << std::endl;
+  
+    cv::Mat hsv;
+    cv::cvtColor(img, hsv, cv::COLOR_BGR2HSV);
+    std::vector<cv::Mat> canales;
+    cv::split(hsv, canales);
 
-    // Para los Pasa Alta (bordes), aplicar valor absoluto es útil para capturar
-    // las transiciones negativas de color
-    cv::Mat resultado = Filtros::aplicarConvolucion(img, kernel, true);
+    // Aplicar el filtro solo al canal V
+    cv::Mat canalV_filtrado = Filtros::aplicarConvolucion(canales[2], kernel, true);
+    // Actualizar el canal V con el resultado filtrado
+    canalV_filtrado.copyTo(canales[2]);
+
+	//a gris.
+	canales[1] = cv::Mat::zeros(canales[1].size(), canales[1].type()); // S = 0
+
+    // Volver a unir los canales
+    cv::Mat hsv_resultado;
+    cv::merge(canales, hsv_resultado);
+
+    cv::Mat resultado;
+    cv::cvtColor(hsv_resultado, resultado, cv::COLOR_HSV2BGR);
 
     if (!resultado.empty()) {
         cv::imwrite(outputPath, resultado);
