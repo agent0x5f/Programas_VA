@@ -36,7 +36,7 @@ DatosHistograma Algoritmo::calcularFrecuencias(const cv::Mat& img, bool enGrises
     return datos;
 }
 
-// Interfaz y graficado en OpenCV
+// Interfaz y graficado con OpenCV
 cv::Mat Algoritmo::dibujarLienzoHistograma(const DatosHistograma& datos, int width, int height) {
     int margin = 50;
     cv::Mat histImage(height, width, CV_8UC3, cv::Scalar(255,255,255)); //creamos donde dibujar
@@ -69,8 +69,11 @@ cv::Mat Algoritmo::dibujarLienzoHistograma(const DatosHistograma& datos, int wid
     cv::putText(histImage, "Intensidad de Pixel", cv::Point(width / 2 - 50, height - 10),cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0,0,0), 1);
 
     if (datos.is_gray) {
-        cv::Mat hist_draw;
-        cv::normalize(datos.gray_hist, hist_draw, 0, draw_h, cv::NORM_MINMAX);
+        cv::Mat hist_draw, log_hist;
+        // Aplicamos logaritmo sumando 1 para evitar log(0)
+        cv::log(datos.gray_hist + 1, log_hist); 
+        cv::normalize(log_hist, hist_draw, 0, draw_h, cv::NORM_MINMAX);
+        
         for (int i = 0; i < histSize; i++) {
             int x = margin + (i * bin_w);
             int y_base = height - margin;
@@ -82,9 +85,16 @@ cv::Mat Algoritmo::dibujarLienzoHistograma(const DatosHistograma& datos, int wid
         }
     } else {
         cv::Mat b_draw, g_draw, r_draw;
-        cv::normalize(datos.b_hist, b_draw, 0, draw_h, cv::NORM_MINMAX);
-        cv::normalize(datos.g_hist, g_draw, 0, draw_h, cv::NORM_MINMAX);
-        cv::normalize(datos.r_hist, r_draw, 0, draw_h, cv::NORM_MINMAX);
+        cv::Mat b_log, g_log, r_log;
+        
+        // Aplicamos logaritmo a cada canal sumando 1
+        cv::log(datos.b_hist + 1, b_log);
+        cv::log(datos.g_hist + 1, g_log);
+        cv::log(datos.r_hist + 1, r_log);
+
+        cv::normalize(b_log, b_draw, 0, draw_h, cv::NORM_MINMAX);
+        cv::normalize(g_log, g_draw, 0, draw_h, cv::NORM_MINMAX);
+        cv::normalize(r_log, r_draw, 0, draw_h, cv::NORM_MINMAX);
 
         for (int i = 0; i < histSize; i++) {
             int x = margin + (i * bin_w);
